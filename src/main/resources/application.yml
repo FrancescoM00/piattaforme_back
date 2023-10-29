@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    username: 'root'
+    url: jdbc:mysql://localhost:3306/piattaforme_db
+    password: 'root'
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+
