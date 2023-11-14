@@ -78,10 +78,11 @@ public class ProdottoService {
     }
 
     @Transactional (propagation = Propagation.SUPPORTS,isolation = Isolation.READ_COMMITTED)
-    public List<Prodotto> ricercaPerNome(String nome) throws ProductNotExistException {
-        if (!prodottoRepo.existsByNome(nome))
-            throw new ProductNotExistException();
-        return prodottoRepo.findByNome(nome);
+    public List<Prodotto> ricerca(String nome, List<String> marche) throws ProductNotExistException {
+        if(marche.isEmpty())
+            return prodottoRepo.findByNomeContaining(nome);
+
+        return prodottoRepo.trovaProdottiPerMarcheEContenenteNome(marche, nome);
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)

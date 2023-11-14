@@ -1,6 +1,5 @@
 package com.example.progetto_psw.Model;
 
-
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

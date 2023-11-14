@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.StyledEditorKit;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -75,5 +76,18 @@ public class UserController {
     public ResponseEntity<List<User>> allUser(){
          List<User> ret=userService.getAllUsers();
          return new ResponseEntity<>(ret,HttpStatus.OK);
+    }
+
+    @PostMapping("/checkUser")
+    public ResponseEntity<Boolean> checkUser(@Valid @RequestBody User user) {
+        String email = user.getEmail();
+        String pass = user.getPassword();
+
+        try {
+            Boolean ret = userService.checkUsers(email, pass);
+            return new ResponseEntity<>(ret, HttpStatus.OK);
+        } catch (UserNotExistException exp) {
+            return new ResponseEntity("Utente non trovato",HttpStatus.BAD_REQUEST);
+        }
     }
 }

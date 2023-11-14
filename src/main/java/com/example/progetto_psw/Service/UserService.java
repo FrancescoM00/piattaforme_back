@@ -97,4 +97,11 @@ public class UserService {
         return userRepo.save(user);
     }
 
+    @Transactional (readOnly = true,propagation=Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
+    public Boolean checkUsers(String email, String password) throws UserNotExistException {
+        if(!userRepo.existsByEmail(email)){
+            throw new UserNotExistException();
+        } return userRepo.existsByEmailAndPassword(email, password);
+    }
+
 }

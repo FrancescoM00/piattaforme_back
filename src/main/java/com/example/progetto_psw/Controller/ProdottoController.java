@@ -56,10 +56,10 @@ public class ProdottoController {
           }
     }
 
-    @GetMapping("/ricerca_per_nome")
-    public ResponseEntity<List<Prodotto>> getByNome(@RequestParam(value="nome") String nome){
+    @GetMapping("/ricerca")
+    public ResponseEntity<List<Prodotto>> getByNome(@RequestParam(value="nome") String nome, @RequestParam(value="marche") List<String> marche){
           try{
-              List<Prodotto> ret=prodottoService.ricercaPerNome(nome);
+              List<Prodotto> ret=prodottoService.ricerca(nome, marche);
               return new ResponseEntity<>(ret,HttpStatus.OK);
           } catch(ProductNotExistException ex){
               return new ResponseEntity("Nessun prodotto ha quel nome",HttpStatus.BAD_REQUEST);

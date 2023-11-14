@@ -27,6 +27,7 @@ public class ProdottoNelCarrelloController {
 
     @GetMapping("/ottieni_carrello")
     public ResponseEntity<List<ProdottoNelCarrello>> getCarrello(@RequestParam(value="email") String email) {
+        System.out.println("entrato");
         try {
             User user = userService.getUser(email);
             List<ProdottoNelCarrello> ret = user.getCarrello();
@@ -58,8 +59,8 @@ public class ProdottoNelCarrelloController {
          }
     }
 
-    @PostMapping("/aggiungi_prodottoNelCarrello")
-    public ResponseEntity<ProdottoNelCarrello> aggiungiProdotto(@RequestParam(value = "email") String email, @RequestParam (value="codice") Integer codice, @RequestParam(value="quantita") int quantita){
+    @GetMapping("/aggiungi_prodotto_nel_carrello")
+    public ResponseEntity<ProdottoNelCarrello> aggiungiProdotto(@RequestParam(value = "email") String email, @RequestParam (value="codice") int codice, @RequestParam(value="quantita") int quantita){
         try{
             ProdottoNelCarrello ret= prodottoNelCarrelloService.add(email,codice,quantita);
             return new ResponseEntity<>(ret,HttpStatus.OK);
@@ -69,6 +70,16 @@ public class ProdottoNelCarrelloController {
             return new ResponseEntity("Prodotto inesistente",HttpStatus.BAD_REQUEST);
         } catch (ProductNotAvailableException ex3){
             return new ResponseEntity("Prodotto non disponibile",HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/nProdotti")
+    public ResponseEntity<Integer> nProdotti(@RequestParam(value = "email") String email){
+        try{
+            int ret=prodottoNelCarrelloService.nProdottiNelCarrello(email);
+            return new ResponseEntity<>(ret,HttpStatus.OK);
+        } catch (UserNotExistException ex){
+            return new ResponseEntity("Utente inesistente",HttpStatus.BAD_REQUEST);
         }
     }
 

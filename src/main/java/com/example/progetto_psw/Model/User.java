@@ -61,4 +61,16 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<ProdottoNelCarrello> carrello;
+
+    @NotEmpty
+    @NotBlank
+    @Basic
+    @Column (name="password", nullable = false)
+    private  String password;
+
+    @NotEmpty
+    @NotBlank
+    @Basic
+    @Column (name="role", nullable = false)
+    private  Boolean role;
 }

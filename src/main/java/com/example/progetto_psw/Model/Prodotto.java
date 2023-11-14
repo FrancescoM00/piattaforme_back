@@ -17,11 +17,12 @@ import java.util.List;
 
 public class Prodotto {
 
-    public Prodotto(Integer codice,String nome, float prezzo,int quantita){
+    public Prodotto(Integer codice,String nome, float prezzo,int quantita, String marca){
         this.codice=codice;
         this.nome=nome;
         this.prezzo=prezzo;
         this.quantita=quantita;
+        this.marca=marca;
     }
 
     @Version
@@ -32,16 +33,23 @@ public class Prodotto {
     private Integer codice;
 
     @Basic
+    @Column(name = "nome", nullable = false)
     private String nome;
 
+
+    @Basic
+    @Column(name = "marca", nullable = false)
+    private String marca;
 
     @Basic
     private String descrizione;
 
     @Basic
+    @Column(name = "prezzo", nullable = false)
     private float prezzo;
 
     @Basic
+    @Column(name = "quantita", nullable = false)
     private int quantita;
 
     @OneToMany(mappedBy = "prodotto")

@@ -48,15 +48,16 @@ public class ProdottoNelCarrelloService {
     public void eliminaProdottoNelCarrello (String email, int id ) throws UserNotExistException, ProductNotExistException {
         if(!userRepo.existsByEmail(email))
             throw new UserNotExistException();
-        if(!prodottoRepo.existsById(id))
+        if(!prodottoNelCarrelloRepo.existsById(id))
             throw new ProductNotExistException();
 
         User u=userRepo.findByEmail(email);
         List<ProdottoNelCarrello> carrello = u.getCarrello();
         for(ProdottoNelCarrello p:carrello){
             if(p.getId()==id){
-               if(p.getQuantita()==1)
-                   carrello.remove(p);
+               if(p.getQuantita()==1) {
+                   prodottoNelCarrelloRepo.delete(p);
+               }
                else
                    p.setQuantita(p.getQuantita()-1);
             }
@@ -79,18 +80,13 @@ public class ProdottoNelCarrelloService {
 
         if (prodottoNelCarrelloRepo.findByUserAndProdotto(user,p)!=null) {//il prodotto è già presente nel carrello devo aggiornare la quantita'
             ret=prodottoNelCarrelloRepo.findByUserAndProdotto(user,p);
-            if (ret.getQuantita() + quantita > p.getQuantita()) {
-                    throw new ProductNotAvailableException();
-                }
-                ret.setProdotto(p);
-                ret.setQuantita(ret.getQuantita() + quantita);
-                ret.setPrezzo(p.getPrezzo());
-                ret.setUser(user);
+            ret.setProdotto(p);
+            ret.setQuantita(ret.getQuantita() + quantita);
+            ret.setPrezzo(p.getPrezzo());
+            ret.setUser(user);
 
         } else{ //se non è ancora presente nel carrello
-            if(quantita>p.getQuantita()){
-                throw new ProductNotAvailableException();
-            }
+
             ret=new ProdottoNelCarrello(user,p,quantita,p.getPrezzo());
             carrello.add(ret);
             prodottoNelCarrelloRepo.save(ret);
@@ -110,6 +106,20 @@ public class ProdottoNelCarrelloService {
         }
         prodottoNelCarrelloRepo.flush();
     }
+
+
+    @Transactional(readOnly = true,propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
+    public int nProdottiNelCarrello(String email) throws UserNotExistException {
+        if (!userRepo.existsByEmail(email))
+            throw new UserNotExistException();
+        User u = userRepo.findByEmail(email);
+        List<ProdottoNelCarrello> carrello=u.getCarrello();
+        int ret=0;
+        for(ProdottoNelCarrello pnc : carrello)
+            ret+=pnc.getQuantita();
+        return ret;
+    }
+
 
 }
 
