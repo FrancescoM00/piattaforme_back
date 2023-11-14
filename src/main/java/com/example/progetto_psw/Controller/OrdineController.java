@@ -24,11 +24,14 @@ public class OrdineController {
     @Autowired
     private OrdineService ordineService;
 
-
     @GetMapping("/tutti_ordini")
-    public ResponseEntity<List<Ordine>> getAllOrdini(){
-        List<Ordine> ret=ordineService.tuttiOrdini();
-        return new ResponseEntity<>(ret, HttpStatus.OK);
+    public ResponseEntity<List<Ordine>> getAllOrdini( @RequestParam (value = "email") String email) {
+        try {
+            List<Ordine> ret = ordineService.tuttiOrdini(email);
+            return new ResponseEntity<>(ret, HttpStatus.OK);
+        } catch (UserNotExistException ex) {
+            return new ResponseEntity("utente non trovato", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/elimina_ordine")

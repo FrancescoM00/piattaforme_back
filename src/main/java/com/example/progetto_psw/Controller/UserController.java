@@ -79,13 +79,13 @@ public class UserController {
     }
 
     @PostMapping("/checkUser")
-    public ResponseEntity<Boolean> checkUser(@Valid @RequestBody User user) {
+    public ResponseEntity<User> checkUser(@Valid @RequestBody User user) {
         String email = user.getEmail();
         String pass = user.getPassword();
 
         try {
-            Boolean ret = userService.checkUsers(email, pass);
-            return new ResponseEntity<>(ret, HttpStatus.OK);
+            User us = userService.checkUsers(email, pass);
+            return new ResponseEntity<User>(us, HttpStatus.OK);
         } catch (UserNotExistException exp) {
             return new ResponseEntity("Utente non trovato",HttpStatus.BAD_REQUEST);
         }

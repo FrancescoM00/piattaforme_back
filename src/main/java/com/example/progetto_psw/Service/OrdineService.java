@@ -12,6 +12,8 @@ import com.example.progetto_psw.Repository.ProdottoNelCarrelloRepo;
 import com.example.progetto_psw.Repository.OrdineRepo;
 import com.example.progetto_psw.Repository.ProdottoRepo;
 import com.example.progetto_psw.Repository.UserRepo;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -37,8 +39,16 @@ public class OrdineService {
     @Autowired
     private UserRepo userRepo;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
-    public List<Ordine> tuttiOrdini(){ return ordineRepo.findAll(); }
+    public List<Ordine> tuttiOrdini(String email) throws UserNotExistException {
+        if(!userRepo.existsByEmail(email)) {
+            throw new UserNotExistException();
+        }
+        return ordineRepo.findByUser(userRepo.findByEmail(email));
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public void eliminaOrdine(String email, Integer id) throws OrdineNotExistsException, UserNotExistException {
@@ -106,9 +116,11 @@ public class OrdineService {
             prodotti.add(pnc2);
             prodottoNelCarrelloRepo.delete(pnc);
         }
+        ordineRepo.save(ret);
+        entityManager.refresh(ret);
         ret.setUser(user);
         ret.setCarrello(prodotti);
-        ordineRepo.save(ret);
+        entityManager.merge(ret);
         return ret;
     }
 
