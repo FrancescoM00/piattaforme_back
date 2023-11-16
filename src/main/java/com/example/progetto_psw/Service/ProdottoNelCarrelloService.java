@@ -3,7 +3,6 @@ package com.example.progetto_psw.Service;
 import Support.Exceptions.ProductNotAvailableException;
 import Support.Exceptions.ProductNotExistException;
 import Support.Exceptions.UserNotExistException;
-import com.example.progetto_psw.Model.Ordine;
 import com.example.progetto_psw.Model.ProdottoNelCarrello;
 import com.example.progetto_psw.Model.Prodotto;
 import com.example.progetto_psw.Model.User;
@@ -11,13 +10,14 @@ import com.example.progetto_psw.Repository.OrdineRepo;
 import com.example.progetto_psw.Repository.ProdottoNelCarrelloRepo;
 import com.example.progetto_psw.Repository.ProdottoRepo;
 import com.example.progetto_psw.Repository.UserRepo;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -34,6 +34,9 @@ public class ProdottoNelCarrelloService {
 
     @Autowired
     private OrdineRepo ordineRepo;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Transactional(readOnly = true,propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
     public List<ProdottoNelCarrello> getCarrello(String email) throws UserNotExistException{
@@ -84,6 +87,7 @@ public class ProdottoNelCarrelloService {
             ret.setQuantita(ret.getQuantita() + quantita);
             ret.setPrezzo(p.getPrezzo());
             ret.setUser(user);
+            return entityManager.merge(ret);
 
         } else{ //se non è ancora presente nel carrello
 

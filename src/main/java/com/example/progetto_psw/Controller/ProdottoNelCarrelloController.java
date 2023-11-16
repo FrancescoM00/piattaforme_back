@@ -27,7 +27,6 @@ public class ProdottoNelCarrelloController {
 
     @GetMapping("/ottieni_carrello")
     public ResponseEntity<List<ProdottoNelCarrello>> getCarrello(@RequestParam(value="email") String email) {
-        System.out.println("entrato");
         try {
             User user = userService.getUser(email);
             List<ProdottoNelCarrello> ret = user.getCarrello();

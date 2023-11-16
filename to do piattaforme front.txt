@@ -1,10 +1,4 @@
-3. pop up errori di login
-4. pop up articolo modificati (dopo i lock)
-5. logout admin
+4. pop up articolo modificati
 6. ordine dei prodotti (alpha, prezzo)
-7. aggiungere la quantita alla modale del prodotto e relativi prossimi bug con le quantita
-9. quando il prodotto è unvailable non posso aggiungerlo al carrello
-11. quando tolgo un oggetto dal carrello deve aggiornarsi il badge
-12. aggiusta l icona in admin
-13.bottone di login colorato quando il form e' valid
-14. mettere lock come gabri
+15. aggiornamento badge (per dopo)
+17. controllo vari aggiornamenti (badge, carrello robe ecc ecc)

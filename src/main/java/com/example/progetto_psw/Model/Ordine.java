@@ -37,7 +37,7 @@ public class Ordine {
     @JoinColumn(name = "user")
     private User user;
 
-    @OneToMany(mappedBy = "ordine", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "ordine", cascade = {CascadeType.MERGE,CascadeType.REMOVE} )
     private List<ProdottoNelCarrello> carrello;
 
     public Ordine(List<ProdottoNelCarrello> prodottoNelCarrello, User user) {

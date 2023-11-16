@@ -1,13 +1,8 @@
 package com.example.progetto_psw.Controller;
 
-import Support.Exceptions.CarrelloVuotoException;
-import Support.Exceptions.OrdineNotExistsException;
-import Support.Exceptions.ProductNotAvailableException;
-import Support.Exceptions.UserNotExistException;
+import Support.Exceptions.*;
 import com.example.progetto_psw.Model.Ordine;
-import com.example.progetto_psw.Model.User;
 import com.example.progetto_psw.Service.OrdineService;
-import com.example.progetto_psw.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +61,7 @@ public class OrdineController {
         }
     }
 
-    @PostMapping("/crea_ordine")
+    @GetMapping("/crea_ordine")
     public ResponseEntity<Ordine> effettuaOrdine(@RequestParam (value="email") String email) {
         try {
             Ordine ret = ordineService.effettuaOrdine(email);
@@ -75,6 +70,10 @@ public class OrdineController {
             return new ResponseEntity("Impossibile effettuare l'ordine",HttpStatus.BAD_REQUEST);
         } catch (CarrelloVuotoException ex2){
             return new ResponseEntity("Il carrello e' vuoto, ordine non effettuato",HttpStatus.BAD_REQUEST);
+        } catch(UserNotExistException ex3){
+            return new ResponseEntity("Utente non trovato",HttpStatus.BAD_REQUEST);
+        } catch (ProductModifiedException ex4){
+            return new ResponseEntity("Il prodotto ha subito modifiche", HttpStatus.CONFLICT);
         }
     }
 

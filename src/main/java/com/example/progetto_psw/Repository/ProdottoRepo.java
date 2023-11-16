@@ -13,6 +13,7 @@ public interface ProdottoRepo extends JpaRepository<Prodotto,Integer> {
 
     List<Prodotto> findByNome(String nome);
     Prodotto findByCodice(Integer codice);
+    void deleteByCodice(Integer codice);
     boolean existsByCodice(Integer codice);
     boolean existsByNome(String nome);
     @Query("SELECT p " +

@@ -54,11 +54,11 @@ public class User {
     @Column (name="cognome")
     private  String cognome;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     @JsonIgnore
     private List<Ordine> ordini;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<ProdottoNelCarrello> carrello;
 

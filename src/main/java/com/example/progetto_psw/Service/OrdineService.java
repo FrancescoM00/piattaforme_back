@@ -1,9 +1,6 @@
 package com.example.progetto_psw.Service;
 
-import Support.Exceptions.CarrelloVuotoException;
-import Support.Exceptions.OrdineNotExistsException;
-import Support.Exceptions.ProductNotAvailableException;
-import Support.Exceptions.UserNotExistException;
+import Support.Exceptions.*;
 import com.example.progetto_psw.Model.ProdottoNelCarrello;
 import com.example.progetto_psw.Model.Ordine;
 import com.example.progetto_psw.Model.Prodotto;
@@ -13,6 +10,7 @@ import com.example.progetto_psw.Repository.OrdineRepo;
 import com.example.progetto_psw.Repository.ProdottoRepo;
 import com.example.progetto_psw.Repository.UserRepo;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,8 +84,11 @@ public class OrdineService {
         ordineRepo.deleteById(id);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW,isolation = Isolation.READ_COMMITTED, rollbackFor = ProductNotAvailableException.class)
-    public Ordine effettuaOrdine(String email) throws ProductNotAvailableException, CarrelloVuotoException {
+    @Transactional(propagation = Propagation.REQUIRES_NEW,isolation = Isolation.READ_COMMITTED, rollbackFor = {CarrelloVuotoException.class, ProductModifiedException.class})
+    public Ordine effettuaOrdine(String email) throws UserNotExistException,ProductNotAvailableException, CarrelloVuotoException, ProductModifiedException {
+        if(!userRepo.existsByEmail(email)){
+            throw new UserNotExistException();
+        }
 
         User user=userRepo.findByEmail(email);
         List<ProdottoNelCarrello> carrello=user.getCarrello();
@@ -99,9 +100,13 @@ public class OrdineService {
         Ordine ret=new Ordine();
 
         for(ProdottoNelCarrello pnc:carrello){
+            Prodotto prodotto= prodottoRepo.findByCodice(pnc.getProdotto().getCodice());
+            entityManager.lock(pnc.getProdotto(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            if(prodotto.getPrezzo()!= pnc.getPrezzo()){
+                throw new ProductModifiedException();
+            }
 
-            Prodotto prodotto=pnc.getProdotto();
-            int nuovaQuantita=prodottoRepo.findByCodice(prodotto.getCodice()).getQuantita()-pnc.getQuantita();
+            int nuovaQuantita=pnc.getProdotto().getQuantita()-pnc.getQuantita();
 
             if(nuovaQuantita<0){
                 throw new ProductNotAvailableException();
@@ -114,7 +119,7 @@ public class OrdineService {
             pnc2.setPrezzo(pnc.getPrezzo());
             pnc2.setOrdine(ret);
             prodotti.add(pnc2);
-            prodottoNelCarrelloRepo.delete(pnc);
+            //prodottoNelCarrelloRepo.delete(pnc);
         }
         ordineRepo.save(ret);
         entityManager.refresh(ret);

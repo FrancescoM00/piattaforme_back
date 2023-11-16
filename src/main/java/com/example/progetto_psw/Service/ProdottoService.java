@@ -8,6 +8,9 @@ import com.example.progetto_psw.Model.User;
 import com.example.progetto_psw.Repository.ProdottoNelCarrelloRepo;
 import com.example.progetto_psw.Repository.ProdottoRepo;
 import com.example.progetto_psw.Repository.UserRepo;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +36,9 @@ public class ProdottoService {
     @Autowired
     private ProdottoNelCarrelloRepo prodottoNelCarrelloRepo;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Transactional (propagation = Propagation.SUPPORTS,isolation = Isolation.READ_COMMITTED)
     public List<Prodotto> tuttiProdotti(){
         return prodottoRepo.findAll();
@@ -40,10 +46,16 @@ public class ProdottoService {
 
     @Transactional (propagation = Propagation.REQUIRES_NEW,isolation = Isolation.READ_COMMITTED)
     public Prodotto aggiungiProdotto(Prodotto prodotto) throws ExistProductException {
+
         if(prodottoRepo.existsById(prodotto.getCodice())){
             throw new ExistProductException();
         }
-        return prodottoRepo.save(prodotto);
+
+        Prodotto ret;
+        ret=prodottoRepo.save(prodotto);
+        entityManager.lock(ret, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+//        entityManager.refresh(ret);
+        return ret;
     }
 
     @Transactional (propagation = Propagation.REQUIRES_NEW,isolation = Isolation.READ_COMMITTED)
@@ -57,20 +69,26 @@ public class ProdottoService {
         for(User u: users){
            List<ProdottoNelCarrello>  carrello= u.getCarrello();
            for(ProdottoNelCarrello prod:carrello){
-               if(prod.equals(p)){
-                   carrello.remove(prod);
+               if(prod.getProdotto().equals(p)){
+                   //carrello.remove(prod);
+                   prodottoNelCarrelloRepo.deleteById(prod.getId());
                }
            }
         }
-        prodottoRepo.delete(p);
+        entityManager.lock(p,LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+        List<ProdottoNelCarrello> prodottiNelCarrello = p.getProdottoNelcarrello();
+        for (ProdottoNelCarrello pnc: prodottiNelCarrello){
+            prodottoNelCarrelloRepo.delete(pnc);
         }
+        prodottoRepo.deleteByCodice(codice);
+    }
 
     @Transactional (propagation = Propagation.REQUIRES_NEW,isolation = Isolation.READ_COMMITTED)
     public Prodotto updateProdotto(Prodotto prodottoNow) throws ProductNotExistException {
             if(!prodottoRepo.existsById(prodottoNow.getCodice())){
                 throw new ProductNotExistException();
             }
-            Prodotto prodotto=prodottoRepo.findByCodice(prodottoNow.getCodice());
+            Prodotto prodotto=entityManager.find(Prodotto.class,prodottoNow.getCodice());
             prodotto.setPrezzo(prodottoNow.getPrezzo());
             prodotto.setQuantita(prodottoNow.getQuantita());
 
