@@ -52,7 +52,7 @@ public class Prodotto {
     @Column(name = "quantita", nullable = false)
     private int quantita;
 
-    @OneToMany(mappedBy = "prodotto")
+    @OneToMany(mappedBy = "prodotto", cascade = CascadeType.MERGE)
     @JsonIgnore
     private List<ProdottoNelCarrello> prodottoNelcarrello;
 

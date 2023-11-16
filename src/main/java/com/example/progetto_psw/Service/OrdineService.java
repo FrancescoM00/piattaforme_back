@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrdineService {
@@ -102,9 +103,15 @@ public class OrdineService {
         for(ProdottoNelCarrello pnc:carrello){
             Prodotto prodotto= prodottoRepo.findByCodice(pnc.getProdotto().getCodice());
             entityManager.lock(pnc.getProdotto(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-            if(prodotto.getPrezzo()!= pnc.getPrezzo()){
-                throw new ProductModifiedException();
-            }
+
+//            if(prodotto.getPrezzo()!= pnc.getPrezzo()){
+//                pnc.setPrezzo(prodotto.getPrezzo());
+//                prodottoNelCarrelloRepo.save(pnc);
+//                entityManager.refresh(pnc);
+//
+//                System.out.println(pnc.getPrezzo());
+//                throw new ProductModifiedException();
+//            }
 
             int nuovaQuantita=pnc.getProdotto().getQuantita()-pnc.getQuantita();
 

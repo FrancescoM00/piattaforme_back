@@ -10,5 +10,4 @@ import org.springframework.stereotype.Repository;
 public interface ProdottoNelCarrelloRepo extends JpaRepository<ProdottoNelCarrello,Integer> {
 
     ProdottoNelCarrello findByUserAndProdotto(User user, Prodotto p);
-
 }
